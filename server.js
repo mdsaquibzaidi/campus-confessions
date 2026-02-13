@@ -23,6 +23,7 @@ db.serialize(() => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         text TEXT NOT NULL,
         mood TEXT DEFAULT 'none',
+        image TEXT,
         likes INTEGER DEFAULT 0,
         reposts INTEGER DEFAULT 0,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -43,6 +44,23 @@ db.serialize(() => {
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (post_id) REFERENCES posts(id)
     )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER NOT NULL,
+        reason TEXT NOT NULL,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (post_id) REFERENCES posts(id)
+    )`);
+
+    // Lightweight migrations for existing DBs
+    db.all(`PRAGMA table_info(posts)`, [], (err, cols) => {
+        if (err) return;
+        const names = new Set((cols || []).map(c => c.name));
+        if (!names.has('image')) {
+            db.run(`ALTER TABLE posts ADD COLUMN image TEXT`, [], () => {});
+        }
+    });
 });
 
 // ── Helpers ───────────────────────────────────────────────
@@ -91,16 +109,51 @@ app.get('/api/posts', (req, res) => {
 
 // Create post
 app.post('/api/posts', (req, res) => {
-    const { text, mood } = req.body;
+    const { text, mood, image } = req.body;
     if (!text || !text.trim()) return res.status(400).json({ error: 'Post cannot be empty' });
     if (text.trim().length > MAX_LENGTH) return res.status(400).json({ error: `Max ${MAX_LENGTH} characters` });
 
     const validMoods = ['none', 'love', 'happy', 'sad', 'angry', 'anxious', 'excited'];
     const safeMood = validMoods.includes(mood) ? mood : 'none';
 
-    db.run(`INSERT INTO posts (text, mood) VALUES (?, ?)`, [text.trim(), safeMood], function(err) {
+    db.run(`INSERT INTO posts (text, mood, image) VALUES (?, ?, ?)`, [text.trim(), safeMood, image || null], function(err) {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: this.lastID, text: text.trim(), mood: safeMood, likes: 0, reposts: 0, reactions: {}, reply_count: 0 });
+        res.json({ id: this.lastID, text: text.trim(), mood: safeMood, image: image || null, likes: 0, reposts: 0, reactions: {}, reply_count: 0 });
+    });
+});
+
+// Edit a post
+app.put('/api/posts/:id', (req, res) => {
+    const { text, mood, image } = req.body;
+    if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'Post cannot be empty' });
+    if (text.trim().length > MAX_LENGTH) return res.status(400).json({ error: `Max ${MAX_LENGTH} characters` });
+
+    const validMoods = ['none', 'love', 'happy', 'sad', 'angry', 'anxious', 'excited'];
+    const safeMood = validMoods.includes(mood) ? mood : 'none';
+
+    db.run(
+        `UPDATE posts SET text = ?, mood = ?, image = ? WHERE id = ?`,
+        [text.trim(), safeMood, image || null, req.params.id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+            res.json({ id: Number(req.params.id), text: text.trim(), mood: safeMood, image: image || null });
+        }
+    );
+});
+
+// Delete a post (also deletes its reactions, replies, reports)
+app.delete('/api/posts/:id', (req, res) => {
+    const id = req.params.id;
+    db.serialize(() => {
+        db.run(`DELETE FROM reactions WHERE post_id = ?`, [id]);
+        db.run(`DELETE FROM replies WHERE post_id = ?`, [id]);
+        db.run(`DELETE FROM reports WHERE post_id = ?`, [id]);
+        db.run(`DELETE FROM posts WHERE id = ?`, [id], function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) return res.status(404).json({ error: 'Not found' });
+            res.json({ ok: true });
+        });
     });
 });
 
@@ -161,6 +214,18 @@ app.post('/api/posts/:id/reply', (req, res) => {
     db.run(`INSERT INTO replies (post_id, text) VALUES (?, ?)`, [req.params.id, text.trim()], function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ id: this.lastID, post_id: Number(req.params.id), text: text.trim() });
+    });
+});
+
+// Report a post
+app.post('/api/posts/:id/report', (req, res) => {
+    const { reason } = req.body;
+    const validReasons = ['spam', 'inappropriate', 'harassment', 'hate_speech', 'violence', 'copyright', 'other'];
+    if (!validReasons.includes(reason)) return res.status(400).json({ error: 'Invalid reason' });
+
+    db.run(`INSERT INTO reports (post_id, reason) VALUES (?, ?)`, [req.params.id, reason], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID, post_id: Number(req.params.id), reason });
     });
 });
 

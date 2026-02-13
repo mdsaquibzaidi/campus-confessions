@@ -8,31 +8,135 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f5f5f5;
-            color: #0f1419;
+            background: radial-gradient(1200px circle at 10% 10%, rgba(88, 101, 242, 0.95), transparent 55%),
+                        radial-gradient(900px circle at 90% 20%, rgba(245, 87, 108, 0.85), transparent 55%),
+                        radial-gradient(1000px circle at 30% 90%, rgba(0, 212, 255, 0.75), transparent 60%),
+                        radial-gradient(800px circle at 80% 85%, rgba(240, 147, 251, 0.75), transparent 55%),
+                        linear-gradient(135deg, #0b1020 0%, #090a12 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #ffffff;
             min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Premium film grain / noise overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.05;
+            background-image:
+                repeating-radial-gradient(circle at 10% 20%, rgba(255,255,255,0.35) 0 1px, transparent 1px 3px),
+                repeating-radial-gradient(circle at 80% 70%, rgba(255,255,255,0.25) 0 1px, transparent 1px 4px);
+            mix-blend-mode: overlay;
+        }
+
+        /* Cursor spotlight layer */
+        #spotlight {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 3;
+            background: radial-gradient(600px circle at var(--sx, 50%) var(--sy, 30%), rgba(255,255,255,0.14), transparent 60%);
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(120deg); }
+            66% { transform: translateY(20px) rotate(240deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+            #spotlight { display: none !important; }
+            body::before, body::after { display: none !important; }
         }
 
         /* ── Layout ─────────────────────────────────── */
         .timeline {
             max-width: 600px;
             margin: 0 auto;
-            background: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             min-height: 100vh;
-            border-left: 1px solid #eff3f4;
-            border-right: 1px solid #eff3f4;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(240,147,251,0.16), rgba(102,126,234,0.06), rgba(245,87,108,0.12));
+            mix-blend-mode: overlay;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 0;
+            pointer-events: none;
+            background: linear-gradient(120deg, rgba(240,147,251,0.25), rgba(102,126,234,0.18), rgba(245,87,108,0.25));
+            filter: blur(18px);
+            opacity: 0.45;
+            z-index: -1;
         }
 
         /* ── Header ─────────────────────────────────── */
         .top-bar {
             position: sticky;
             top: 0;
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             z-index: 50;
-            border-bottom: 1px solid #eff3f4;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
         .top-bar-inner {
             padding: 12px 16px;
@@ -40,17 +144,115 @@
         .top-bar h1 {
             font-size: 1.25em;
             font-weight: 700;
+            background: linear-gradient(45deg, #fff, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
         }
         .top-bar .subtitle {
             font-size: 0.8em;
-            color: #536472;
+            color: rgba(255, 255, 255, 0.8);
             font-weight: 400;
         }
 
         /* Tabs */
         .tabs {
             display: flex;
-            border-bottom: 1px solid #eff3f4;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .controls {
+            padding: 10px 16px 14px;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .search {
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(12px);
+            padding: 10px 12px;
+            outline: none;
+            color: #fff;
+            font-family: inherit;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .search::placeholder { color: rgba(255,255,255,0.65); }
+        .search:focus {
+            box-shadow: 0 0 0 6px rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .chip {
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.10);
+            color: rgba(255,255,255,0.9);
+            border-radius: 16px;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            backdrop-filter: blur(12px);
+        }
+        .chip:hover { transform: translateY(-1px); background: rgba(255,255,255,0.16); }
+        .chip:active { transform: translateY(0px) scale(0.98); }
+        .chip select {
+            appearance: none;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: inherit;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        .toggle input { accent-color: #f093fb; }
+
+        .skeleton {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .skeleton-line {
+            height: 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.14);
+            position: relative;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .skeleton-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -40%;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+            animation: shimmer 1.2s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+            from { transform: translateX(0); }
+            to { transform: translateX(260%); }
+        }
+
+        .post.pinned {
+            outline: 1px solid rgba(240,147,251,0.35);
+            box-shadow: 0 18px 60px rgba(240,147,251,0.12);
+        }
+        .post.highlight {
+            outline: 1px solid rgba(102,126,234,0.35);
+            box-shadow: 0 18px 60px rgba(102,126,234,0.12);
         }
         .tab {
             flex: 1;
@@ -58,16 +260,23 @@
             padding: 14px 0;
             font-size: 0.9em;
             font-weight: 500;
-            color: #536471;
+            color: rgba(255, 255, 255, 0.8);
             cursor: pointer;
             position: relative;
-            transition: background 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             background: none;
             font-family: inherit;
         }
-        .tab:hover { background: #f7f7f7; }
-        .tab.active { color: #0f1419; font-weight: 700; }
+        .tab:hover { 
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        .tab.active { 
+            color: #ffffff; 
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
         .tab.active::after {
             content: '';
             position: absolute;
@@ -76,16 +285,18 @@
             transform: translateX(-50%);
             width: 56px;
             height: 4px;
-            background: #e0446d;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
             border-radius: 2px;
+            box-shadow: 0 0 20px rgba(240, 147, 251, 0.6);
         }
 
         /* ── Compose ────────────────────────────────── */
         .compose {
             padding: 12px 16px;
-            border-bottom: 1px solid #eff3f4;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
         }
         .avatar {
             width: 40px;
@@ -98,8 +309,15 @@
             font-size: 1.1em;
             font-weight: 700;
             color: #fff;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            box-shadow: 0 4px 20px rgba(240, 147, 251, 0.4);
+            animation: avatarGlow 3s ease-in-out infinite;
         }
-        .avatar.compose-avatar { background: #e0446d; }
+        @keyframes avatarGlow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(240, 147, 251, 0.4); }
+            50% { box-shadow: 0 4px 30px rgba(240, 147, 251, 0.8); }
+        }
+        .avatar.compose-avatar { background: linear-gradient(45deg, #667eea, #764ba2); }
 
         .compose-body { flex: 1; min-width: 0; }
         .compose textarea {
@@ -110,10 +328,19 @@
             font-size: 1.15em;
             resize: none;
             min-height: 52px;
-            color: #0f1419;
+            color: #ffffff;
             line-height: 1.4;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px;
+            transition: all 0.3s ease;
         }
-        .compose textarea::placeholder { color: #9aa3ad; }
+        .compose textarea:focus { 
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+        .compose textarea::placeholder { color: rgba(255, 255, 255, 0.6); }
 
         .compose-moods {
             display: flex;
@@ -124,14 +351,19 @@
         .mood-chip {
             padding: 3px 10px;
             border-radius: 14px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             font-size: 0.78em;
             cursor: pointer;
-            transition: all 0.15s;
-            background: #fff;
-            color: #536471;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
         }
-        .mood-chip:hover { background: #f7f7f7; }
+        .mood-chip:hover { 
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+        }
         .mood-chip.selected {
             background: #fde8ee;
             border-color: #e0446d;
@@ -143,9 +375,70 @@
             justify-content: space-between;
             align-items: center;
             padding-top: 10px;
-            border-top: 1px solid #eff3f4;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .compose-left { display: flex; align-items: center; gap: 12px; }
+        .compose-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+
+        /* Image upload styles */
+        .image-upload-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            font-size: 1.2em;
+        }
+        .image-upload-btn:hover { 
+            transform: translateY(-2px) scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.15);
+        }
+        .image-upload-btn.has-image { 
+            color: #ffffff;
+            background: linear-gradient(45deg, rgba(240, 147, 251, 0.5), rgba(245, 87, 108, 0.5));
+        }
+
+        .image-preview {
+            margin-top: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            max-width: 100%;
+        }
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+        }
+        .image-preview .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            transition: background 0.15s;
+        }
+        .image-preview .remove-btn:hover { background: rgba(0,0,0,0.9); }
 
         /* Circular char counter */
         .char-ring {
@@ -158,7 +451,7 @@
             fill: none;
             stroke-width: 2.5;
         }
-        .char-ring .bg { stroke: #eff3f4; }
+        .char-ring .bg { stroke: rgba(255, 255, 255, 0.2); }
         .char-ring .fill { stroke: #e0446d; transition: stroke-dashoffset 0.2s, stroke 0.2s; }
         .char-ring .fill.warn { stroke: #ffc107; }
         .char-ring .fill.limit { stroke: #f44336; }
@@ -168,37 +461,85 @@
             left: 50%;
             transform: translate(-50%,-50%);
             font-size: 0.55em;
-            color: #536471;
+            color: rgba(255, 255, 255, 0.8);
             font-weight: 600;
         }
 
         .post-btn {
             padding: 8px 20px;
-            background: #e0446d;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
             color: #fff;
             border: none;
             border-radius: 20px;
             font-weight: 700;
             font-size: 0.88em;
             cursor: pointer;
-            transition: opacity 0.15s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: inherit;
+            box-shadow: 0 4px 20px rgba(240, 147, 251, 0.4);
         }
-        .post-btn:hover { opacity: 0.85; }
-        .post-btn:disabled { opacity: 0.5; cursor: default; }
+        .post-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(240, 147, 251, 0.6);
+        }
+        .post-btn:disabled { 
+            opacity: 0.5; 
+            cursor: default;
+            transform: none;
+        }
 
         /* ── Post Card ──────────────────────────────── */
         .post {
             display: flex;
             gap: 12px;
             padding: 12px 16px;
-            border-bottom: 1px solid #eff3f4;
-            transition: background 0.15s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             animation: fadeIn 0.3s ease;
+            background: rgba(255, 255, 255, 0.04);
+            position: relative;
+            transform-style: preserve-3d;
         }
-        .post:hover { background: #f8f8f8; }
+
+        .post.tilt {
+            will-change: transform;
+        }
+        .post::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.08) 35%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        .post:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(31, 38, 135, 0.25);
+        }
+        .post:hover::before { opacity: 1; }
 
         .post-body { flex: 1; min-width: 0; }
+
+        .post-image {
+            margin-top: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 100%;
+            cursor: pointer;
+        }
+        .post-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+            transition: transform 0.15s;
+        }
+        .post-image img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 18px 60px rgba(0,0,0,0.25);
+        }
 
         .post-header {
             display: flex;
@@ -211,15 +552,15 @@
             font-size: 0.92em;
         }
         .post-handle {
-            color: #536471;
+            color: rgba(255, 255, 255, 0.65);
             font-size: 0.85em;
         }
         .post-dot {
-            color: #536471;
+            color: rgba(255, 255, 255, 0.65);
             font-size: 0.7em;
         }
         .post-time {
-            color: #536471;
+            color: rgba(255, 255, 255, 0.65);
             font-size: 0.85em;
         }
 
@@ -256,19 +597,28 @@
             width: 32px;
             height: 28px;
             border-radius: 14px;
-            border: 1px solid #eff3f4;
-            background: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.10);
             cursor: pointer;
             font-size: 0.85em;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 2px;
-            transition: all 0.15s;
-            color: #536471;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
         }
-        .emoji-btn:hover { background: #fde8ee; border-color: #e0446d; transform: scale(1.1); }
-        .emoji-btn.reacted { background: #fde8ee; border-color: #e0446d; }
+        .emoji-btn:hover {
+            transform: translateY(-2px) scale(1.1);
+            background: linear-gradient(45deg, rgba(240, 147, 251, 0.35), rgba(245, 87, 108, 0.35));
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.25);
+        }
+        .emoji-btn.reacted {
+            background: linear-gradient(45deg, rgba(240, 147, 251, 0.45), rgba(245, 87, 108, 0.45));
+            border-color: rgba(255, 255, 255, 0.4);
+        }
         .emoji-btn .e-count {
             font-size: 0.7em;
             font-weight: 600;
@@ -288,24 +638,32 @@
             padding: 6px 10px;
             border-radius: 20px;
             border: none;
-            background: none;
+            background: rgba(255, 255, 255, 0.06);
             cursor: pointer;
             font-size: 0.82em;
-            color: #536471;
-            transition: all 0.15s;
+            color: rgba(255, 255, 255, 0.85);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: inherit;
+            backdrop-filter: blur(10px);
         }
         .action svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
-        .action:hover.reply-action { color: #1d9bf0; background: rgba(29,155,240,0.1); }
-        .action:hover.repost-action { color: #00ba7c; background: rgba(0,186,124,0.1); }
-        .action:hover.like-action { color: #f91880; background: rgba(249,24,128,0.1); }
-        .action:hover.bookmark-action { color: #1d9bf0; background: rgba(29,155,240,0.1); }
+        .action:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 25px rgba(31, 38, 135, 0.2);
+        }
+        .action:hover.reply-action { color: #ffffff; background: rgba(29,155,240,0.22); }
+        .action:hover.repost-action { color: #ffffff; background: rgba(0,186,124,0.22); }
+        .action:hover.like-action { color: #ffffff; background: rgba(249,24,128,0.22); }
+        .action:hover.bookmark-action { color: #ffffff; background: rgba(29,155,240,0.22); }
         .action.liked { color: #f91880; }
         .action.liked svg { fill: #f91880; stroke: #f91880; }
         .action.reposted { color: #00ba7c; }
         .action.bookmarked { color: #1d9bf0; }
         .action.bookmarked svg { fill: #1d9bf0; }
         .action span { font-size: 0.95em; }
+        .action.report-action:hover { color: #ffffff; background: rgba(224,36,94,0.22); }
+        .action.reported { color: #ffffff; background: rgba(224,36,94,0.18); }
 
         /* ── Replies ────────────────────────────────── */
         .replies-section {
@@ -318,13 +676,13 @@
             display: flex;
             gap: 10px;
             padding: 10px 0 10px 52px;
-            border-top: 1px solid #eff3f4;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
         }
         .reply-avatar {
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: #536471;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
             color: #fff;
             font-size: 0.65em;
             display: flex;
@@ -332,35 +690,42 @@
             justify-content: center;
             flex-shrink: 0;
             font-weight: 700;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
         }
         .reply-body { flex: 1; min-width: 0; }
         .reply-name { font-weight: 600; font-size: 0.82em; }
-        .reply-handle { color: #536471; font-size: 0.78em; }
+        .reply-handle { color: #71767b; font-size: 0.78em; }
         .reply-text { font-size: 0.88em; line-height: 1.45; margin-top: 2px; }
-        .reply-time { font-size: 0.72em; color: #536471; margin-top: 2px; }
+        .reply-time { font-size: 0.72em; color: #71767b; margin-top: 2px; }
 
         .reply-compose {
             display: flex;
             gap: 10px;
             padding: 10px 0 4px 52px;
-            border-top: 1px solid #eff3f4;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
             align-items: center;
         }
         .reply-compose input {
             flex: 1;
-            border: 1px solid #eff3f4;
+            border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 20px;
             padding: 8px 14px;
             font-size: 0.85em;
             outline: none;
             font-family: inherit;
-            color: #0f1419;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
         }
-        .reply-compose input:focus { border-color: #e0446d; }
-        .reply-compose input::placeholder { color: #9aa3ad; }
+        .reply-compose input:focus { 
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+        }
+        .reply-compose input::placeholder { color: rgba(255, 255, 255, 0.6); }
         .reply-compose button {
             padding: 6px 16px;
-            background: #e0446d;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
             color: #fff;
             border: none;
             border-radius: 20px;
@@ -368,18 +733,174 @@
             font-size: 0.8em;
             cursor: pointer;
             font-family: inherit;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 18px rgba(240, 147, 251, 0.25);
         }
-        .reply-compose button:hover { opacity: 0.85; }
+        .reply-compose button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(240, 147, 251, 0.35);
+        }
 
         /* ── Empty State ────────────────────────────── */
         .empty {
             text-align: center;
             padding: 80px 20px;
-            color: #9aa3ad;
+            color: rgba(255, 255, 255, 0.75);
         }
         .empty .icon { font-size: 2.5em; margin-bottom: 10px; }
         .empty p { font-size: 0.92em; }
-        .empty b { color: #0f1419; }
+        .empty b { color: #e7e9ea; }
+
+        /* ── Report Modal ───────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            animation: modalSlideIn 0.2s ease;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(31, 38, 135, 0.35);
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.15s;
+        }
+        .modal-close:hover { 
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+        .report-option {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        .report-option:hover { 
+            background: rgba(255, 255, 255, 0.14);
+            transform: translateY(-2px);
+        }
+        .report-option.selected {
+            background: linear-gradient(45deg, rgba(224, 36, 94, 0.22), rgba(245, 87, 108, 0.22));
+            border-color: rgba(255, 255, 255, 0.35);
+            color: #ffffff;
+        }
+        .report-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #e0245e, #f5576c);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: opacity 0.15s;
+            margin-top: 16px;
+            box-shadow: 0 10px 30px rgba(224, 36, 94, 0.25);
+        }
+        .report-submit:hover { opacity: 0.85; }
+        .report-submit:disabled { opacity: 0.5; cursor: default; }
+
+        /* ── Dynamic Features ───────────────────────── */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0 8px 52px;
+            color: #71767b;
+            font-size: 0.85em;
+            font-style: italic;
+        }
+        .typing-indicator.show { display: flex; }
+        .typing-dots {
+            display: flex;
+            gap: 2px;
+        }
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #71767b;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: rgba(0,186,124,0.1);
+            color: #00ba7c;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00ba7c;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
         /* ── Toast ──────────────────────────────────── */
         .toast {
@@ -387,7 +908,7 @@
             bottom: 24px;
             left: 50%;
             transform: translateX(-50%) translateY(80px);
-            background: #e0446d;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
             color: #fff;
             padding: 10px 22px;
             border-radius: 8px;
@@ -396,8 +917,17 @@
             opacity: 0;
             transition: all 0.25s ease;
             z-index: 100;
+            box-shadow: 0 14px 40px rgba(240, 147, 251, 0.3);
         }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Confetti canvas */
+        #confetti {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2000;
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -407,15 +937,40 @@
 </head>
 <body>
 
+<div id="spotlight"></div>
+<canvas id="confetti"></canvas>
+
 <div class="timeline">
     <!-- Top Bar -->
     <div class="top-bar">
         <div class="top-bar-inner">
             <h1>Campus Confessions <span class="subtitle" id="count"></span></h1>
+            <span class="live-indicator">
+                <span class="live-dot"></span>
+                LIVE
+            </span>
         </div>
         <div class="tabs">
             <button class="tab active" onclick="switchTab('recent', this)">For You</button>
             <button class="tab" onclick="switchTab('top', this)">Trending</button>
+        </div>
+        <div class="controls">
+            <input class="search" id="searchInput" placeholder="Search confessions..." />
+            <button class="chip" id="moodFilterChip" title="Filter mood">
+                <select id="moodFilter" onchange="setMoodFilter(this.value)">
+                    <option value="all">All moods</option>
+                    <option value="love">Love</option>
+                    <option value="happy">Happy</option>
+                    <option value="sad">Sad</option>
+                    <option value="angry">Angry</option>
+                    <option value="anxious">Anxious</option>
+                    <option value="excited">Excited</option>
+                </select>
+            </button>
+            <label class="chip toggle" title="Only show posts with images">
+                <input type="checkbox" id="imagesOnly" onchange="setImagesOnly(this.checked)" />
+                Images
+            </label>
         </div>
     </div>
 
@@ -424,6 +979,7 @@
         <div class="avatar compose-avatar">?</div>
         <div class="compose-body">
             <textarea id="input" placeholder="What's happening on campus?" maxlength="280" rows="2"></textarea>
+            <div id="imagePreviewContainer"></div>
             <div class="compose-moods" id="moods">
                 <span class="mood-chip" data-mood="love" onclick="pickMood(this)">&#10084;&#65039; love</span>
                 <span class="mood-chip" data-mood="happy" onclick="pickMood(this)">&#128522; happy</span>
@@ -434,6 +990,10 @@
             </div>
             <div class="compose-footer">
                 <div class="compose-left">
+                    <button class="image-upload-btn" id="imageUploadBtn" onclick="document.getElementById('imageInput').click()" title="Add image">
+                        📷
+                    </button>
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
                     <div class="char-ring" id="charRing">
                         <svg width="28" height="28" viewBox="0 0 28 28">
                             <circle class="bg" cx="14" cy="14" r="11" />
@@ -452,6 +1012,26 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- Report Modal -->
+<div class="modal-overlay" id="reportModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Report Post</h3>
+            <button class="modal-close" onclick="closeReportModal()">×</button>
+        </div>
+        <div class="report-options">
+            <div class="report-option" onclick="selectReportReason(this, 'spam')">Spam or misleading content</div>
+            <div class="report-option" onclick="selectReportReason(this, 'inappropriate')">Inappropriate content</div>
+            <div class="report-option" onclick="selectReportReason(this, 'harassment')">Harassment or bullying</div>
+            <div class="report-option" onclick="selectReportReason(this, 'hate_speech')">Hate speech</div>
+            <div class="report-option" onclick="selectReportReason(this, 'violence')">Violence or dangerous content</div>
+            <div class="report-option" onclick="selectReportReason(this, 'copyright')">Copyright violation</div>
+            <div class="report-option" onclick="selectReportReason(this, 'other')">Other</div>
+        </div>
+        <button class="report-submit" id="reportSubmitBtn" onclick="submitReport()" disabled>Submit Report</button>
+    </div>
+</div>
+
 <script>
 const API = '/api/posts';
 const MAX = 280;
@@ -460,12 +1040,25 @@ const CIRCUMFERENCE = 2 * Math.PI * 11; // ~69.12
 const input = document.getElementById('input');
 const postBtn = document.getElementById('postBtn');
 const fillCircle = document.querySelector('.char-ring .fill');
+const searchInput = document.getElementById('searchInput');
+const moodFilter = document.getElementById('moodFilter');
+const imagesOnlyEl = document.getElementById('imagesOnly');
 
 let mood = 'none';
 let sort = 'recent';
+let selectedImage = null;
+let currentReportPostId = null;
+let selectedReportReason = null;
+let searchQuery = '';
+let moodFilterValue = 'all';
+let imagesOnly = false;
+let pinnedPostId = Number(localStorage.getItem('pinnedPostId') || 0) || null;
+let lastLoadedPosts = [];
+const myPosts = new Set(JSON.parse(localStorage.getItem('myPosts') || '[]'));
 const liked = new Set();
 const reposted = new Set();
 const bookmarked = new Set();
+const reported = new Set();
 const reacted = {}; // { postId: Set<type> }
 
 // ── Anonymous identity from post id ───────────────
@@ -497,6 +1090,57 @@ const EMOJIS = [
     { type: 'fire',  icon: '&#128293;' }
 ];
 
+// ── Image handling ─────────────────────────────────
+
+function handleImageSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        toast('Please select an image file');
+        return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        toast('Image must be smaller than 5MB');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        selectedImage = e.target.result;
+        showImagePreview(selectedImage);
+        document.getElementById('imageUploadBtn').classList.add('has-image');
+        updatePostButton();
+    };
+    reader.readAsDataURL(file);
+}
+
+function showImagePreview(imageSrc) {
+    const container = document.getElementById('imagePreviewContainer');
+    container.innerHTML = `
+        <div class="image-preview">
+            <img src="${imageSrc}" alt="Preview">
+            <button class="remove-btn" onclick="removeImage()">×</button>
+        </div>
+    `;
+}
+
+function removeImage() {
+    selectedImage = null;
+    document.getElementById('imagePreviewContainer').innerHTML = '';
+    document.getElementById('imageUploadBtn').classList.remove('has-image');
+    document.getElementById('imageInput').value = '';
+    updatePostButton();
+}
+
+function updatePostButton() {
+    const len = input.value.length;
+    postBtn.disabled = len === 0 || len > MAX;
+}
+
 // ── Mood picker ───────────────────────────────────
 
 function pickMood(el) {
@@ -518,7 +1162,7 @@ input.addEventListener('input', () => {
     const pct = len / MAX;
     fillCircle.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
     fillCircle.className.baseVal = 'fill' + (pct > 0.9 ? (pct >= 1 ? ' limit' : ' warn') : '');
-    postBtn.disabled = len === 0 || len > MAX;
+    updatePostButton();
     // Auto-resize textarea
     input.style.height = 'auto';
     input.style.height = input.scrollHeight + 'px';
@@ -568,73 +1212,316 @@ const ICON = {
     reply:    '<svg viewBox="0 0 24 24"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.25-.893 4.34-2.457 5.86l-4.91 4.77a.75.75 0 01-1.134-.506l-.27-1.874a.75.75 0 01.476-.795C16.57 16.57 18.5 14.5 18.5 12c0-2.76-2.24-5-5-5H10c-2.76 0-5 2.24-5 5v.5c0 .28-.22.5-.5.5H2.25a.5.5 0 01-.5-.5V10z"/></svg>',
     repost:   '<svg viewBox="0 0 24 24"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2h4v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H12.5V4h4c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>',
     like:     '<svg viewBox="0 0 24 24"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C10.001 6.01 8.534 5.44 7.303 5.5c-1.533.09-2.904 1.04-3.49 2.64-.587 1.6-.235 3.46 1.098 5.22 1.333 1.76 3.524 3.59 6.09 5.24 2.564-1.65 4.756-3.48 6.089-5.24 1.333-1.76 1.685-3.62 1.098-5.22-.586-1.6-1.957-2.55-3.49-2.64z"/></svg>',
-    bookmark: '<svg viewBox="0 0 24 24"><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z"/></svg>'
+    bookmark: '<svg viewBox="0 0 24 24"><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5z"/></svg>',
+    report:   '<svg viewBox="0 0 24 24"><path d="M14.73 20.83L17.58 17.97L14.73 15.12L15.83 14.03L18.68 16.88L21.53 14.03L22.62 15.12L19.77 17.97L22.62 20.83L21.53 21.92L18.68 19.07L15.83 21.92L14.73 20.83ZM1.25 2.75L12 13.5L22.75 2.75H1.25ZM12 15.5L1.25 4.75V21.25H11.5V19.75H2.75V8L12 17.25L13.5 15.75V17.85L12 19.35L2.75 10.1V21.25H11.5V22.75H1.25V2.75Z"/></svg>',
+    share:    '<svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.02-4.11c.53.5 1.23.81 2.07.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.07 9.81C7.54 9.31 6.84 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.84 0 1.54-.31 2.07-.81l7.12 4.16c-.05.2-.08.41-.08.62 0 1.52 1.23 2.75 2.75 2.75S20.5 22.5 20.5 21s-1.23-2.75-2.5-2.75z"/></svg>',
+    pin:      '<svg viewBox="0 0 24 24"><path d="M14 2l-1 7 4 4-5 2-2 7-2-7-5-2 4-4-1-7h8z"/></svg>',
+    edit:     '<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18.37-11.12c.39-.39.39-1.02 0-1.41l-2.09-2.09a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.58-1.58z"/></svg>',
+    trash:    '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>'
 };
+
+searchInput.addEventListener('input', (e) => {
+    searchQuery = (e.target.value || '').trim().toLowerCase();
+    renderPosts(lastLoadedPosts);
+});
+
+function setMoodFilter(v) {
+    moodFilterValue = v;
+    renderPosts(lastLoadedPosts);
+}
+
+function setImagesOnly(v) {
+    imagesOnly = v;
+    renderPosts(lastLoadedPosts);
+}
+
+function saveMyPosts() {
+    localStorage.setItem('myPosts', JSON.stringify(Array.from(myPosts)));
+}
+
+function setPinned(id) {
+    pinnedPostId = pinnedPostId === id ? null : id;
+    localStorage.setItem('pinnedPostId', pinnedPostId ? String(pinnedPostId) : '');
+    toast(pinnedPostId ? 'Pinned' : 'Unpinned');
+    renderPosts(lastLoadedPosts);
+}
+
+function getPostById(id) {
+    return (lastLoadedPosts || []).find(p => p.id === id) || null;
+}
+
+async function sharePostById(id) {
+    const p = getPostById(id);
+    if (!p) return;
+    const url = `${location.origin}${location.pathname}#post-${p.id}`;
+    const text = p.text;
+    try {
+        if (navigator.share) {
+            await navigator.share({ title: 'Campus Confessions', text, url });
+            return;
+        }
+    } catch (e) {}
+    try {
+        await navigator.clipboard.writeText(url);
+        toast('Link copied');
+    } catch (e) {
+        toast('Copy failed');
+    }
+}
+
+async function editPostById(id) {
+    const p = getPostById(id);
+    if (!p) return;
+    const newText = window.prompt('Edit your confession:', p.text);
+    if (newText === null) return;
+    const text = newText.trim();
+    if (!text) return;
+    try {
+        await fetch(`${API}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, mood: p.mood || 'none', image: p.image || null })
+        });
+        toast('Updated');
+        loadPosts();
+    } catch (e) {
+        toast('Update failed');
+    }
+}
+
+async function deletePostById(id) {
+    const ok = window.confirm('Delete this post?');
+    if (!ok) return;
+    try {
+        await fetch(`${API}/${id}`, { method: 'DELETE' });
+        myPosts.delete(id);
+        saveMyPosts();
+        toast('Deleted');
+        loadPosts();
+    } catch (e) {
+        toast('Delete failed');
+    }
+}
 
 // ── Load Posts ────────────────────────────────────
 
 async function loadPosts() {
     try {
+        const feed = document.getElementById('feed');
+        feed.innerHTML = `
+            <div class="skeleton"><div class="skeleton-line" style="width: 55%"></div><div class="skeleton-line" style="width: 92%"></div><div class="skeleton-line" style="width: 78%"></div></div>
+            <div class="skeleton"><div class="skeleton-line" style="width: 35%"></div><div class="skeleton-line" style="width: 88%"></div><div class="skeleton-line" style="width: 60%"></div></div>
+            <div class="skeleton"><div class="skeleton-line" style="width: 45%"></div><div class="skeleton-line" style="width: 95%"></div><div class="skeleton-line" style="width: 74%"></div></div>
+        `;
         const res = await fetch(`${API}?sort=${sort}`);
         const posts = await res.json();
-        const feed = document.getElementById('feed');
         document.getElementById('count').textContent = posts.length ? `\u00b7 ${posts.length} posts` : '';
 
         if (!posts.length) {
             feed.innerHTML = '<div class="empty"><div class="icon">&#128172;</div><p><b>No confessions yet.</b><br>Be the first to post.</p></div>';
             return;
         }
-
-        feed.innerHTML = posts.map(p => {
-            const moodHtml = p.mood && p.mood !== 'none' && MOOD_MAP[p.mood]
-                ? `<span class="post-mood ${MOOD_MAP[p.mood].cls}">${MOOD_MAP[p.mood].label}</span>` : '';
-
-            const emojisHtml = EMOJIS.map(e => {
-                const c = (p.reactions && p.reactions[e.type]) || 0;
-                const done = reacted[p.id] && reacted[p.id].has(e.type);
-                return `<button class="emoji-btn ${done ? 'reacted' : ''}" onclick="react(${p.id},'${e.type}',this)">${e.icon}${c ? '<span class="e-count">'+c+'</span>' : ''}</button>`;
-            }).join('');
-
-            return `
-            <div class="post" id="post-${p.id}">
-                <div class="avatar" style="background:${anonColor(p.id)}">${anonInitial(p.id)}</div>
-                <div class="post-body">
-                    <div class="post-header">
-                        <span class="post-name">${anonName(p.id)}</span>
-                        <span class="post-handle">${anonHandle(p.id)}</span>
-                        <span class="post-dot">&middot;</span>
-                        <span class="post-time">${timeAgo(p.timestamp)}</span>
-                    </div>
-                    ${moodHtml}
-                    <div class="post-text">${esc(p.text)}</div>
-                    <div class="post-reactions">${emojisHtml}</div>
-                    <div class="actions">
-                        <button class="action reply-action" onclick="toggleReplies(${p.id})">
-                            ${ICON.reply} <span>${fmtCount(p.reply_count)}</span>
-                        </button>
-                        <button class="action repost-action ${reposted.has(p.id)?'reposted':''}" onclick="doRepost(${p.id},this)">
-                            ${ICON.repost} <span>${fmtCount(p.reposts)}</span>
-                        </button>
-                        <button class="action like-action ${liked.has(p.id)?'liked':''}" onclick="doLike(${p.id},this)">
-                            ${ICON.like} <span>${fmtCount(p.likes)}</span>
-                        </button>
-                        <button class="action bookmark-action ${bookmarked.has(p.id)?'bookmarked':''}" onclick="doBookmark(${p.id},this)">
-                            ${ICON.bookmark}
-                        </button>
-                    </div>
-                    <div class="replies-section" id="replies-${p.id}">
-                        <div id="replies-list-${p.id}"></div>
-                        <div class="reply-compose">
-                            <input type="text" id="reply-input-${p.id}" placeholder="Post your reply" maxlength="280" onkeydown="if(event.key==='Enter')sendReply(${p.id})" />
-                            <button onclick="sendReply(${p.id})">Reply</button>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
+        lastLoadedPosts = posts;
+        renderPosts(posts);
     } catch (e) {
         console.error('Load failed:', e);
     }
+}
+
+function renderPosts(posts) {
+    const feed = document.getElementById('feed');
+    const q = searchQuery;
+    let filtered = posts.filter(p => {
+        if (imagesOnly && !p.image) return false;
+        if (moodFilterValue !== 'all' && p.mood !== moodFilterValue) return false;
+        if (q && !(String(p.text || '').toLowerCase().includes(q))) return false;
+        return true;
+    });
+
+    const pinned = pinnedPostId ? filtered.find(p => p.id === pinnedPostId) : null;
+    filtered = filtered.filter(p => !pinnedPostId || p.id !== pinnedPostId);
+
+    let highlightId = null;
+    if (sort === 'top' && filtered.length) highlightId = filtered[0].id;
+
+    const ordered = pinned ? [pinned, ...filtered] : filtered;
+
+    feed.innerHTML = ordered.map(p => {
+        const moodHtml = p.mood && p.mood !== 'none' && MOOD_MAP[p.mood]
+            ? `<span class="post-mood ${MOOD_MAP[p.mood].cls}">${MOOD_MAP[p.mood].label}</span>` : '';
+
+        const imageHtml = p.image ? `
+            <div class="post-image" onclick="viewImage('${p.image}')">
+                <img src="${p.image}" alt="Post image">
+            </div>
+        ` : '';
+
+        const emojisHtml = EMOJIS.map(e => {
+            const c = (p.reactions && p.reactions[e.type]) || 0;
+            const done = reacted[p.id] && reacted[p.id].has(e.type);
+            return `<button class="emoji-btn ${done ? 'reacted' : ''}" onclick="react(${p.id},'${e.type}',this)">${e.icon}${c ? '<span class="e-count">'+c+'</span>' : ''}</button>`;
+        }).join('');
+
+        const mine = myPosts.has(p.id);
+        const postClass = `${pinnedPostId === p.id ? 'pinned' : ''} ${highlightId === p.id ? 'highlight' : ''}`.trim();
+
+        const ownerActions = mine ? `
+            <button class="action" onclick="editPostById(${p.id})">${ICON.edit}</button>
+            <button class="action" onclick="deletePostById(${p.id})">${ICON.trash}</button>
+        ` : '';
+
+        return `
+        <div class="post tilt ${postClass}" id="post-${p.id}" data-post-id="${p.id}">
+            <div class="avatar" style="background:${anonColor(p.id)}">${anonInitial(p.id)}</div>
+            <div class="post-body">
+                <div class="post-header">
+                    <span class="post-name">${anonName(p.id)}</span>
+                    <span class="post-handle">${anonHandle(p.id)}</span>
+                    <span class="post-dot">&middot;</span>
+                    <span class="post-time">${timeAgo(p.timestamp)}</span>
+                </div>
+                ${moodHtml}
+                <div class="post-text">${esc(p.text)}</div>
+                ${imageHtml}
+                <div class="post-reactions">${emojisHtml}</div>
+                <div class="actions">
+                    <button class="action reply-action" onclick="toggleReplies(${p.id})">${ICON.reply} <span>${fmtCount(p.reply_count)}</span></button>
+                    <button class="action repost-action ${reposted.has(p.id)?'reposted':''}" onclick="doRepost(${p.id},this)">${ICON.repost} <span>${fmtCount(p.reposts)}</span></button>
+                    <button class="action like-action ${liked.has(p.id)?'liked':''}" onclick="doLike(${p.id},this)">${ICON.like} <span>${fmtCount(p.likes)}</span></button>
+                    <button class="action bookmark-action ${bookmarked.has(p.id)?'bookmarked':''}" onclick="doBookmark(${p.id},this)">${ICON.bookmark}</button>
+                    <button class="action" onclick="setPinned(${p.id})">${ICON.pin}</button>
+                    <button class="action" onclick="sharePostById(${p.id})">${ICON.share}</button>
+                    <button class="action report-action ${reported.has(p.id)?'reported':''}" onclick="openReportModal(${p.id})">${ICON.report}</button>
+                    ${ownerActions}
+                </div>
+                <div class="replies-section" id="replies-${p.id}">
+                    <div id="replies-list-${p.id}"></div>
+                    <div class="reply-compose">
+                        <input type="text" id="reply-input-${p.id}" placeholder="Post your reply" maxlength="280" onkeydown="if(event.key==='Enter')sendReply(${p.id})" onfocus="showTypingIndicator(${p.id})" onblur="hideTypingIndicator(${p.id})" />
+                        <button onclick="sendReply(${p.id})">Reply</button>
+                    </div>
+                    <div class="typing-indicator" id="typing-${p.id}">
+                        <span>Someone is typing</span>
+                        <div class="typing-dots">
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    attachTiltHandlers();
+}
+
+function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Cursor spotlight
+(() => {
+    if (prefersReducedMotion()) return;
+    const spot = document.getElementById('spotlight');
+    if (!spot) return;
+    let raf = 0;
+    window.addEventListener('mousemove', (e) => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            spot.style.setProperty('--sx', x + '%');
+            spot.style.setProperty('--sy', y + '%');
+            raf = 0;
+        });
+    }, { passive: true });
+
+    // Hide on touch devices
+    window.addEventListener('touchstart', () => { spot.style.opacity = '0'; }, { passive: true, once: true });
+})();
+
+// 3D parallax tilt
+function attachTiltHandlers() {
+    if (prefersReducedMotion()) return;
+    const cards = document.querySelectorAll('.post.tilt');
+    cards.forEach(card => {
+        if (card.dataset.tiltBound) return;
+        card.dataset.tiltBound = '1';
+
+        const onMove = (e) => {
+            const r = card.getBoundingClientRect();
+            const px = (e.clientX - r.left) / r.width;
+            const py = (e.clientY - r.top) / r.height;
+            const rotY = (px - 0.5) * 8;
+            const rotX = (0.5 - py) * 8;
+            card.style.transform = `translateY(-2px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        };
+
+        const reset = () => {
+            card.style.transform = '';
+        };
+
+        card.addEventListener('mousemove', onMove);
+        card.addEventListener('mouseleave', reset);
+    });
+}
+
+// Confetti micro-delight
+function confettiBurst() {
+    if (prefersReducedMotion()) return;
+    const canvas = document.getElementById('confetti');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const resize = () => {
+        canvas.width = Math.floor(window.innerWidth * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+        canvas.style.width = window.innerWidth + 'px';
+        canvas.style.height = window.innerHeight + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+
+    const colors = ['#f093fb', '#f5576c', '#667eea', '#764ba2', '#ffffff'];
+    const parts = Array.from({ length: 90 }).map(() => ({
+        x: window.innerWidth / 2,
+        y: 140,
+        vx: (Math.random() - 0.5) * 14,
+        vy: (Math.random() - 0.9) * 16,
+        g: 0.55 + Math.random() * 0.25,
+        s: 3 + Math.random() * 4,
+        r: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.25,
+        c: colors[Math.floor(Math.random() * colors.length)],
+        life: 90 + Math.floor(Math.random() * 40)
+    }));
+
+    let frame = 0;
+    const tick = () => {
+        frame++;
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        parts.forEach(p => {
+            p.vy += p.g;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.r += p.vr;
+            p.life--;
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.r);
+            ctx.fillStyle = p.c;
+            ctx.globalAlpha = Math.max(0, Math.min(1, p.life / 120));
+            ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6);
+            ctx.restore();
+        });
+        if (frame < 140 && parts.some(p => p.life > 0 && p.y < window.innerHeight + 50)) {
+            requestAnimationFrame(tick);
+        } else {
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        }
+    };
+    requestAnimationFrame(tick);
 }
 
 // ── Create Post ───────────────────────────────────
@@ -644,20 +1531,38 @@ async function createPost() {
     if (!text) return;
     postBtn.disabled = true;
     try {
-        await fetch(API, {
+        const res = await fetch(API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, mood })
+            body: JSON.stringify({ text, mood, image: selectedImage })
         });
+        const created = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            toast(created && created.error ? created.error : 'Failed to post');
+            updatePostButton();
+            return;
+        }
+        if (created && created.id) {
+            myPosts.add(created.id);
+            saveMyPosts();
+        }
         input.value = '';
         input.style.height = 'auto';
         fillCircle.style.strokeDashoffset = CIRCUMFERENCE;
         fillCircle.className.baseVal = 'fill';
         mood = 'none';
+        selectedImage = null;
         document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected'));
+        document.getElementById('imagePreviewContainer').innerHTML = '';
+        document.getElementById('imageUploadBtn').classList.remove('has-image');
+        document.getElementById('imageInput').value = '';
         toast('Posted!');
+        confettiBurst();
         loadPosts();
-    } catch (e) { toast('Failed to post'); }
+    } catch (e) {
+        toast('Failed to post');
+        updatePostButton();
+    }
 }
 
 // ── Like ──────────────────────────────────────────
@@ -785,6 +1690,95 @@ async function sendReply(id) {
     } catch (e) { toast('Failed to reply'); }
 }
 
+// ── Report Modal Functions ─────────────────────────
+
+function openReportModal(postId) {
+    currentReportPostId = postId;
+    selectedReportReason = null;
+    document.getElementById('reportModal').classList.add('show');
+    document.querySelectorAll('.report-option').forEach(opt => opt.classList.remove('selected'));
+    document.getElementById('reportSubmitBtn').disabled = true;
+}
+
+function closeReportModal() {
+    document.getElementById('reportModal').classList.remove('show');
+    currentReportPostId = null;
+    selectedReportReason = null;
+}
+
+function selectReportReason(element, reason) {
+    document.querySelectorAll('.report-option').forEach(opt => opt.classList.remove('selected'));
+    element.classList.add('selected');
+    selectedReportReason = reason;
+    document.getElementById('reportSubmitBtn').disabled = false;
+}
+
+async function submitReport() {
+    if (!currentReportPostId || !selectedReportReason) return;
+    
+    try {
+        await fetch(`${API}/${currentReportPostId}/report`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason: selectedReportReason })
+        });
+        reported.add(currentReportPostId);
+        closeReportModal();
+        toast('Post reported');
+        loadPosts();
+    } catch (e) {
+        toast('Failed to report post');
+    }
+}
+
+// ── Dynamic Features ────────────────────────────────
+
+let autoUpdateInterval;
+let typingTimeouts = {};
+
+function startAutoUpdate() {
+    if (autoUpdateInterval) clearInterval(autoUpdateInterval);
+    autoUpdateInterval = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+            loadPosts();
+        }
+    }, 30000); // Update every 30 seconds
+}
+
+function showTypingIndicator(postId) {
+    const indicator = document.getElementById(`typing-${postId}`);
+    if (indicator) {
+        indicator.classList.add('show');
+        
+        // Clear existing timeout
+        if (typingTimeouts[postId]) {
+            clearTimeout(typingTimeouts[postId]);
+        }
+        
+        // Hide after 3 seconds of inactivity
+        typingTimeouts[postId] = setTimeout(() => {
+            hideTypingIndicator(postId);
+        }, 3000);
+    }
+}
+
+function hideTypingIndicator(postId) {
+    const indicator = document.getElementById(`typing-${postId}`);
+    if (indicator) {
+        indicator.classList.remove('show');
+    }
+    if (typingTimeouts[postId]) {
+        clearTimeout(typingTimeouts[postId]);
+        delete typingTimeouts[postId];
+    }
+}
+
+// ── Image viewer ───────────────────────────────────
+
+function viewImage(imageSrc) {
+    window.open(imageSrc, '_blank');
+}
+
 // ── Toast ─────────────────────────────────────────
 
 function toast(msg) {
@@ -796,6 +1790,28 @@ function toast(msg) {
 
 // ── Init ──────────────────────────────────────────
 loadPosts();
+startAutoUpdate();
+
+// Handle visibility changes
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        loadPosts();
+    }
+});
+
+// Close modal on escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeReportModal();
+    }
+});
+
+// Close modal on backdrop click
+document.getElementById('reportModal').addEventListener('click', (e) => {
+    if (e.target.id === 'reportModal') {
+        closeReportModal();
+    }
+});
 </script>
 </body>
 </html>
